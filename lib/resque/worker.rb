@@ -531,24 +531,31 @@ module Resque
     end
 
     # Unregisters ourself as a worker. Useful when shutting down.
+    # This patch adds in handling of raised DirtyExit errors while still ensuring that the Redis data is taken care of.
     def unregister_worker(exception = nil)
-      # If we're still processing a job, make sure it gets logged as a
-      # failure.
-      if (hash = processing) && !hash.empty?
-        job = Job.new(hash['queue'], hash['payload'])
-        # Ensure the proper worker is attached to this job, even if
-        # it's not the precise instance that died.
-        job.worker = self
-        job.fail(exception || DirtyExit.new)
-      end
+      begin
+        # If we're still processing a job, make sure it gets logged as a
+        # failure.
+        if (hash = processing) && !hash.empty?
+          job = Job.new(hash['queue'], hash['payload'])
+          # Ensure the proper worker is attached to this job, even if
+          # it's not the precise instance that died.
+          job.worker = self
+          job.fail(exception || DirtyExit.new)
+        end
+      rescue DirtyExit => e
+        # Rescue from and log the DirtyExit error if present
+        error "Error unregistering worker: #{e.inspect}"
+        error e.backtrace.join("\n")
+      ensure
+        redis.pipelined do
+          redis.srem(:workers, self)
+          redis.del("worker:#{self}")
+          redis.del("worker:#{self}:started")
 
-      redis.pipelined do
-        redis.srem(:workers, self)
-        redis.del("worker:#{self}")
-        redis.del("worker:#{self}:started")
-
-        Stat.clear("processed:#{self}")
-        Stat.clear("failed:#{self}")
+          Stat.clear("processed:#{self}")
+          Stat.clear("failed:#{self}")
+        end
       end
     end
 
