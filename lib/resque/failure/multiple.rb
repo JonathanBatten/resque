@@ -32,6 +32,11 @@ module Resque
         classes.first.all(*args)
       end
 
+      # The queues
+      def self.queues(*args)
+        classes.first.queues(*args)
+      end
+
       # Iterate across failed objects
       def self.each(*args, &block)
         classes.first.each(*args, &block)

@@ -240,7 +240,7 @@ module Resque
 
   # Does the dirty work of fetching a range of items from a Redis list
   # and converting them into Ruby objects.
-  def list_range(key, start = 0, count = 1)
+  def list_range(key, start = 0, count = 1, order = 'desc')
     if count == 1
       decode redis.lindex(key, start)
     else
