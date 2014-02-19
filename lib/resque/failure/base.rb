@@ -31,6 +31,11 @@ module Resque
       def save
       end
 
+      # Are there multiple failed queues?
+      def self.failed_multiple_queues?
+        false
+      end
+
       # The number of failures.
       def self.count(queue = nil, class_name = nil)
         0

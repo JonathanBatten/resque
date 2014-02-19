@@ -22,6 +22,11 @@ module Resque
         @backends.each(&:save)
       end
 
+      # Are there multiple failed queues?
+      def self.failed_multiple_queues?
+        classes.first.failed_multiple_queues?
+      end
+
       # The number of failures.
       def self.count(*args)
         classes.first.count(*args)

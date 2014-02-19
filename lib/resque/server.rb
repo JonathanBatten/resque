@@ -203,6 +203,16 @@ module Resque
       redirect u('failed')
     end
 
+    post "/failed/remove" do
+      Resque::Failure.remove_queue :failed
+      redirect u('failed')
+    end
+
+    post "/failed/:queue/remove" do
+      Resque::Failure.remove_queue params[:queue]
+      redirect u('failed')
+    end
+
     post "/failed/requeue/all" do
       Resque::Failure.count.times do |num|
         Resque::Failure.requeue(num)

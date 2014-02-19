@@ -62,6 +62,11 @@ module Resque
       backend.queues
     end
 
+    # Returns whether there are multiple failed queues
+    def self.failed_multiple_queues?
+      backend.failed_multiple_queues?
+    end
+
     # Returns the int count of how many failures we have seen.
     def self.count(queue = nil, class_name = nil)
       backend.count(queue, class_name)

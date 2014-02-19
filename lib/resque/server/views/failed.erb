@@ -4,6 +4,11 @@
 <h1>Failed Jobs <%= "on '#{params[:queue]}'" if params[:queue] %> <%= "with class '#{params[:class]}'" if params[:class] %></h1>
 <% end %>
 
+<% unless Resque::Failure.queues.size.zero? %>
+<form method="POST" action="<%=u "failed#{'/' + params[:queue] if params[:queue]}/remove" %>" class='remove-queue'>
+  <input type='submit' name='' value="Remove <%= params[:queue] ? params[:queue] : 'Failed' %> Queue(s)" onclick='return confirm("Are you absolutely sure? This cannot be undone.");' />
+</form>
+<% end %>
 <% unless failed_size.zero? %>
 <form method="POST" action="<%= u "failed#{'/' + params[:queue] if params[:queue]}/clear" %>">
   <input type="submit" name="" value="Clear <%= params[:queue] ? "'#{params[:queue]}'" : 'Failed' %> Jobs" />

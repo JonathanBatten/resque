@@ -17,6 +17,10 @@ module Resque
         Resque.redis.rpush(Resque::Failure.failure_queue_name(queue), data)
       end
 
+      def self.failed_multiple_queues?
+        true
+      end
+
       def self.count(queue = nil, class_name = nil)
         if queue
           if class_name
@@ -76,8 +80,16 @@ module Resque
         each(0, count(failure_queue), failure_queue) { |id, _| requeue(id, failure_queue) }
       end
 
-      def self.remove_queue(queue)
-        Resque.redis.del(Resque::Failure.failure_queue_name(queue))
+      def self.remove_queue(queue = :failed)
+        Resque.redis.del(queue)
+
+        if queue == :failed
+          Resque.redis.smembers(:failed_queues).each do |failed_queue|
+            Resque.redis.srem(:failed_queues, failed_queue)
+          end
+        else
+          Resque.redis.srem(:failed_queues, queue)
+        end
       end
 
       def filter_backtrace(backtrace)

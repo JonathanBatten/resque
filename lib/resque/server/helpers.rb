@@ -9,7 +9,7 @@ Resque::Server.helpers do
 
   def failed_multiple_queues?
     return @multiple_failed_queues if defined?(@multiple_failed_queues)
-    @multiple_failed_queues = Resque::Failure.queues.size > 1
+    @multiple_failed_queues = Resque::Failure.failed_multiple_queues? || Resque::Failure.queues.size > 1
   end
 
   def failed_size
