@@ -5,7 +5,7 @@ module Resque
     class RedisMultiQueue < Base
       def save
         data = {
-          :failed_at => Time.now.strftime("%Y/%m/%d %H:%M:%S %Z"),
+          :failed_at => format_time(Time.zone.now),
           :payload   => payload,
           :exception => exception.class.to_s,
           :error     => UTF8Util.clean(exception.to_s),
@@ -64,7 +64,7 @@ module Resque
 
       def self.requeue(id, queue = :failed)
         item = all(id, 1, queue)
-        item['retried_at'] = Time.now.strftime("%Y/%m/%d %H:%M:%S")
+        item['retried_at'] = format_time(Time.zone.now)
         Resque.redis.lset(queue, id, Resque.encode(item))
         Job.create(item['queue'], item['payload']['class'], *item['payload']['args'])
       end
