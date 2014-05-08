@@ -3,6 +3,8 @@ module Resque
     # A Failure backend that stores exceptions in Redis. Very simple but
     # works out of the box, along with support in the Resque web app.
     class RedisMultiQueue < Base
+      include Resque::Helpers
+
       def save
         data = {
           :failed_at => format_time(Time.zone.now),

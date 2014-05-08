@@ -99,7 +99,7 @@ module Resque
     end
 
     def format_time(t)
-       t.strftime('%Y-%m-%d %H:%M:%S %z')
-     end
+      t.strftime('%Y-%m-%d %H:%M:%S %z')
+    end
   end
 end
